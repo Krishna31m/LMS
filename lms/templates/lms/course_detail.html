@@ -1,0 +1,35 @@
+{% extends 'lms/base.html' %}
+{% block title %}{{ course.title }} - Videos{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-4">{{ course.title }} - Video Playlist</h1>
+
+{# Show Upload button only to teachers (staff) #}
+{% if request.user.is_staff %}
+<a href="{% url 'upload_video' course.id %}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Upload Video</a>
+{% endif %}
+
+<div class="mt-6 space-y-4">
+    {% for video in videos %}
+    <div class="bg-white p-4 shadow rounded">
+        <h2 class="text-lg font-semibold">{{ video.title }}</h2>
+        <video controls class="w-full mt-2">
+            <source src="{{ video.video_file.url }}" type="video/mp4">
+        </video>
+
+        {% if video.study_material %}
+        <a href="{{ video.study_material.url }}" class="text-blue-500 block mt-2" download>Download Material</a>
+        {% endif %}
+
+        {# Show Edit/Delete only to teachers (staff) #}
+        {% if request.user.is_staff %}
+        <div class="mt-2 flex space-x-3">
+            <a href="{% url 'edit_video' video.id %}" class="text-green-600">Edit</a>
+            <a href="{% url 'delete_video' video.id %}" class="text-red-600">Delete</a>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p>No videos uploaded yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

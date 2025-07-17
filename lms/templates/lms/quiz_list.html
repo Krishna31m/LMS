@@ -1,0 +1,19 @@
+{% extends 'lms/base.html' %}
+{% block content %}
+<h2>Available Quizzes</h2>
+
+<ul>
+  {% for quiz in quizzes %}
+    <div>
+        <p>{{ quiz.title }}</p>
+        {% if quiz.id %}
+            <a href="{% url 'attempt_quiz' quiz.id %}">Attempt</a>
+        {% else %}
+            <p><em>Quiz ID missing</em></p>
+        {% endif %}
+    </div>
+  {% endfor %}    
+
+</ul>
+{% endblock %}
+

@@ -1,0 +1,95 @@
+{% extends 'lms/base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">My Courses</h1>
+    <div class="flex space-x-4">
+        <a href="{% url 'create_course' %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            + Create a New Course
+        </a>
+        <a href="{% url 'upload_quiz' %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            + Create a New Quiz
+        </a>
+    </div>
+</div>
+
+
+<!-- Course Tabs -->
+<ul class="flex mb-4 space-x-4 text-sm">
+    <li>
+        <a href="#" class="font-semibold text-blue-600">
+            Published ({{ course_counts.published }})
+        </a>
+    </li>
+    <li>
+        <a href="#" class="text-gray-600">
+            Pending ({{ course_counts.pending }})
+        </a>
+    </li>
+    <li>
+        <a href="#" class="text-gray-600">
+            Draft ({{ course_counts.draft }})
+        </a>
+    </li>
+</ul>
+
+<!-- Courses Grid -->
+<div class="grid grid-cols-3 gap-4">
+    {% for course in courses %}
+
+    <div class="bg-white rounded shadow p-4">
+        {% if course.thumbnail %}
+        <img src="{{ course.thumbnail.url }}" class="w-full h-40 object-cover mb-3" alt="{{ course.title }}">
+        {% else %}
+        <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500 mb-3">No Image</div>
+        {% endif %}
+        
+        <h3 class="text-lg font-bold">
+            <a href="{% url 'course_detail' course.id %}" class="hover:text-blue-600">
+                {{ course.title }}
+            </a>
+        </h3>
+
+        <p class="text-sm text-gray-600 mb-2">{{ course.created_at|date:"M d, Y H:i a" }}</p>
+        <p class="text-sm">Duration: {{ course.duration }}</p>
+        <p class="text-sm">Learners: {{ course.learners }}</p>
+        <p class="text-sm mb-2">
+            Price: 
+            {% if course.discount_price %}
+                <span class="line-through text-red-500">${{ course.original_price }}</span> 
+                ${{ course.discount_price }}
+            {% else %}
+                Free
+            {% endif %}
+        </p>
+        <div class="flex space-x-2 mt-2">
+            <a href="{% url 'edit_course' course.id %}" class="text-blue-600 text-sm">Edit</a>
+            <a href="{% url 'delete_course' course.id %}" class="text-red-600 text-sm">Delete</a>
+        </div>
+
+        {% if not user.is_staff %}
+        <form method="post" action="{% url 'enroll_course' course.id %}">
+            {% csrf_token %}
+            <button class="bg-green-500 text-white px-2 py-1 mt-2 rounded">Enroll</button>
+        </form>
+        {% endif %}
+    </div>
+    <!-- Enrolled Students -->
+    <div class="mt-4 bg-gray-100 p-3 rounded">
+        <h4 class="font-semibold text-sm mb-2">Enrolled Students:</h4>
+        {% if enrollments_by_course|dictsort:course.id %}
+            <ul class="list-disc list-inside text-sm">
+                {% for enrollment in enrollments_by_course.course.id %}
+                    <li>{{ enrollment.student.username }} ({{ enrollment.student.email }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-sm text-gray-500">No students enrolled yet.</p>
+        {% endif %}
+    </div>
+
+
+    {% endfor %}
+</div>
+{% endblock %} 
