@@ -8,39 +8,37 @@
 </head>
 <body class="bg-gray-100">
     <div class="flex">
-        <!-- Sidebar -->
-        <div class="w-1/5 bg-white min-h-screen shadow-md p-4">
+        <!-- Sticky Sidebar -->
+        <div class="w-1/5 bg-white h-screen shadow-md p-4 fixed top-0 left-0 overflow-y-auto">
             <h2 class="text-xl font-bold mb-6">Dashboard</h2>
             <ul class="space-y-2 text-sm">
                 {% if request.user.is_staff %}
                     <!-- Teacher Links -->
                     <li><a href="{% url 'teacher_dashboard' %}" class="block text-gray-700 hover:text-blue-600">My Courses</a></li>
                     <li><a href="#" class="block text-gray-700 hover:text-blue-600">Announcements</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Withdrawals</a></li>
+                    <!-- <li><a href="#" class="block text-gray-700 hover:text-blue-600">Withdrawals</a></li> -->
                     <li><a href="{% url 'upload_quiz' %}" class="block text-gray-700 hover:text-blue-600">Upload Quiz</a></li>
-                    <li><a href="" class="block text-gray-700 hover:text-blue-600">Quiz Attempts</a></li>
+                    <li><a href="{% url 'quiz_list' %}" class="block text-gray-700 hover:text-blue-600">Quizzes</a></li>
                     <li><a href="#" class="block text-gray-700 hover:text-blue-600">Google Meet</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Assignments</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Zoom</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Certificate</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Analytics</a></li>
+                    <li><a href="{% url 'assignment_list' %}" class="block text-gray-700 hover:text-blue-600">Assignments</a></li>
+                    <!-- <li><a href="#" class="block text-gray-700 hover:text-blue-600">Zoom</a></li> -->
+                    <!-- <li><a href="#" class="block text-gray-700 hover:text-blue-600">Certificate</a></li> -->
+                    <!-- <li><a href="#" class="block text-gray-700 hover:text-blue-600">Analytics</a></li> -->
                 {% else %}
                     <!-- Student Links -->
                     <li><a href="{% url 'course_list' %}" class="block text-gray-700 hover:text-blue-600">All Courses</a></li>
                     <li><a href="{% url 'student_dashboard' %}" class="block text-gray-700 hover:text-blue-600">My Courses</a></li>
                     <li><a href="{% url 'quiz_list' %}" class="block text-gray-700 hover:text-blue-600">Quizzes</a></li>
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">Assignments</a></li>
+                    <li><a href="{% url 'assignment_list' %}" class="block text-gray-700 hover:text-blue-600">Assignments</a></li>
                     <li><a href="#" class="block text-gray-700 hover:text-blue-600">Certificate</a></li>
                     <li><a href="#" class="block text-gray-700 hover:text-blue-600">Progress</a></li>
-                    
                 {% endif %}
                 <li><a href="{% url 'logout' %}" class="block text-gray-700 hover:text-red-600">Logout</a></li>
             </ul>
-    </div>
-
+        </div>
 
         <!-- Main content -->
-        <div class="w-4/5 p-6">
+        <div class="w-4/5 ml-[20%] p-6">
             {% block content %}
             {% endblock %}
         </div>

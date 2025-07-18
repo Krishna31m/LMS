@@ -1,0 +1,49 @@
+{% extends 'lms/base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Create Assignment{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">Create New Assignment</h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label class="block font-semibold mb-1">Course</label>
+            {{ form.course|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Title</label>
+            {{ form.title|add_class:"w-full border border-gray-300 bg-white text-black rounded px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Description</label>
+            {{ form.description|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Due Date <span class="text-sm text-gray-500">(YYYY-MM-DD)</span></label>
+            {{ form.due_date|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Upload File (optional)</label>
+            {{ form.uploaded_file|add_class:"w-full border border-gray-300 rounded px-3 py-2" }}
+        </div>
+
+        <div>
+            <label class="block font-semibold mb-1">Or Paste File Link (optional)</label>
+            {{ form.file_link|add_class:"w-full border border-gray-300 bg-white text-black rounded px-3 py-2" }}
+            <p class="text-sm text-gray-500">Paste a direct download or viewable link</p>
+        </div>
+
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Create Assignment
+        </button>
+    </form>
+</div>
+{% endblock %}

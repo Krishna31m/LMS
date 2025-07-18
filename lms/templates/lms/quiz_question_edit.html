@@ -1,0 +1,25 @@
+{% extends 'lms/base.html' %}
+{% block title %}Edit Questions for {{ quiz.title }}{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-6">Edit Questions for "{{ quiz.title }}"</h2>
+
+<form method="post">
+    {% csrf_token %}
+    {% for question in questions %}
+        <div class="bg-gray-100 p-4 rounded shadow mb-6">
+            <label class="block font-semibold">Question {{ forloop.counter }}:</label>
+            <input type="text" name="question_{{ question.id }}" value="{{ question.question_text }}" class="w-full p-2 mt-1 mb-4 border rounded">
+
+            {% for option in question.option_set.all %}
+                <div class="flex items-center mb-2">
+                    <input type="radio" name="correct_{{ question.id }}" value="{{ option.id }}" {% if option.is_correct %}checked{% endif %} class="mr-2">
+                    <input type="text" name="option_{{ option.id }}" value="{{ option.option_text }}" class="flex-1 p-2 border rounded">
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Save Changes</button>
+</form>
+{% endblock %}

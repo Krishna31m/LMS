@@ -1,27 +1,44 @@
 {% extends 'lms/base.html' %}
 {% block title %}Available Courses{% endblock %}
+
 {% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Available Courses</h2>
 
-<h2 class="text-2xl font-bold mb-4">Available Courses</h2>
-
-{% if courses %}
-<div class="grid grid-cols-3 gap-4">
-    {% for course in courses %}
-    <div class="bg-white rounded shadow p-4">
-        <img src="{{ course.thumbnail.url }}" class="w-full h-40 object-cover mb-2" />
-        <h3 class="text-lg font-semibold">{{ course.title }}</h3>
-        <p class="text-sm text-gray-600">{{ course.description|truncatechars:100 }}</p>
-        <form method="post" action="{% url 'enroll_course' course.id %}">
-            {% csrf_token %}
-            <button type="submit" class="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Enroll
-            </button>
-        </form>
+    {% if courses %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 flex flex-col">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}"
+                     class="w-full h-40 object-cover" />
+            {% else %}
+                <div class="w-full h-40 bg-gray-200 flex items-center justify-center text-gray-500">
+                    No Image
+                </div>
+            {% endif %}
+            <div class="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ course.title }}</h3>
+                    <p class="text-sm text-gray-600 mb-2">
+                        {{ course.description|truncatechars:100 }}
+                    </p>
+                </div>
+                <form method="post" action="{% url 'enroll_course' course.id %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                        Enroll
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+    {% else %}
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-4 rounded mt-6">
+        <p>No new courses available. You’ve enrolled in all.</p>
+    </div>
+    {% endif %}
 </div>
-{% else %}
-    <p>No new courses available. You’ve enrolled in all.</p>
-{% endif %}
-
 {% endblock %}

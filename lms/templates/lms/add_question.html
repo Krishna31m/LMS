@@ -1,29 +1,73 @@
 {% extends 'lms/base.html' %}
+{% load static %}
 {% block content %}
-<h2>Add Question to "{{ quiz.title }}"</h2>
+<div class="max-w-3xl mx-auto mt-10 p-8 bg-white shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Add Question to "{{ quiz.title }}"</h2>
 
-<form method="post">
-    {% csrf_token %}
-    {{ question_form.as_p }}
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        <div class="space-y-4">
+            <!-- Custom styling for question_form fields -->
+            {% for field in question_form %}
+                <div>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700">{{ field.label }}</label>
+                    {{ field }}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const field = document.getElementById("{{ field.auto_id }}");
+                            if (field) {
+                                field.classList.add("w-full", "px-3", "py-2", "border", "border-gray-300", "rounded-md", "focus:outline-none", "focus:ring-2", "focus:ring-blue-500");
+                            }
+                        });
+                    </script>
+                    {% for error in field.errors %}
+                        <p class="text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
 
-    <label>Option 1: <input type="text" name="option1"></label><br>
-    <label>Option 2: <input type="text" name="option2"></label><br>
-    <label>Option 3: <input type="text" name="option3"></label><br>
-    <label>Option 4: <input type="text" name="option4"></label><br>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="option1" class="block text-sm font-medium text-gray-700">Option 1</label>
+                <input type="text" name="option1" id="option1" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
 
-    <label>Correct Option:
-        <select name="correct">
-            <option value="1">Option 1</option>
-            <option value="2">Option 2</option>
-            <option value="3">Option 3</option>
-            <option value="4">Option 4</option>
-        </select>
-    </label><br><br>
+            <div>
+                <label for="option2" class="block text-sm font-medium text-gray-700">Option 2</label>
+                <input type="text" name="option2" id="option2" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
 
-    <button type="submit">Add Another Question</button>
-</form>
+            <div>
+                <label for="option3" class="block text-sm font-medium text-gray-700">Option 3</label>
+                <input type="text" name="option3" id="option3" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
 
-<br>
-<!-- Redirect to teacher dashboard or quiz list -->
-<a href="{% url 'teacher_dashboard' %}">I'm Done</a>
+            <div>
+                <label for="option4" class="block text-sm font-medium text-gray-700">Option 4</label>
+                <input type="text" name="option4" id="option4" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+        </div>
+
+        <div>
+            <label for="correct" class="block text-sm font-medium text-gray-700 mt-4">Correct Option</label>
+            <select name="correct" id="correct" class="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                <option value="1">Option 1</option>
+                <option value="2">Option 2</option>
+                <option value="3">Option 3</option>
+                <option value="4">Option 4</option>
+            </select>
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">
+                Add Another Question
+            </button>
+
+            <a href="{% url 'teacher_dashboard' %}" class="text-blue-600 hover:underline">
+                I'm Done
+            </a>
+        </div>
+    </form>
+</div>
 {% endblock %}

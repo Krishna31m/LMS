@@ -1,10 +1,32 @@
 {% extends 'lms/base.html' %}
 {% block title %}Upload Video{% endblock %}
+
 {% block content %}
-<h2 class="text-xl font-bold mb-4">{{ course.title }} - Upload Video</h2>
-<form method="post" enctype="multipart/form-data" class="space-y-4">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Upload</button>
-</form>
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6 border-b pb-2">{{ course.title }} - Upload Video</h2>
+
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Loop through form fields for consistent styling -->
+        {% for field in form %}
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label_tag }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p class="text-sm text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="flex justify-end">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow transition-all duration-200">
+                Upload Video
+            </button>
+        </div>
+    </form>
+</div>
 {% endblock %}

@@ -1,11 +1,41 @@
 {% extends 'lms/base.html' %}
+{% load static %}
 {% block content %}
-<div class="max-w-xl mx-auto mt-6">
-  <h2 class="text-xl font-bold mb-4">Upload Video for Course</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Upload</button>
-  </form>
+<div class="max-w-2xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-md border border-gray-200">
+    <h2 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Upload a New Quiz</h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="space-y-4">
+            {% for field in form %}
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">{{ field.label_tag }}</label>
+                    {{ field }}
+                    <script>
+                        // Apply Tailwind border class directly after the DOM loads
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const field = document.getElementById("{{ field.auto_id }}");
+                            if (field) {
+                                field.classList.add("border", "border-gray-400", "rounded", "px-3", "py-2", "w-full", "focus:outline-none", "focus:ring-2", "focus:ring-blue-500");
+                            }
+                        });
+                    </script>
+                    {% if field.help_text %}
+                        <p class="text-xs text-gray-500">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="text-sm text-red-600">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="flex justify-center">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-md transition duration-300">
+                Next: Add Questions
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}

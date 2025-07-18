@@ -1,0 +1,51 @@
+{% extends 'lms/base.html' %}
+{% block title %}Assignments{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-6">Assignments</h2>
+
+{% if request.user.is_staff %}
+    <div class="mb-4">
+        <a href="{% url 'assignment_create' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            + Create Assignment
+        </a>
+    </div>
+{% endif %}
+
+{% for assignment in assignments %}
+    <div class="bg-white border p-4 rounded shadow mb-4">
+        <h3 class="text-lg font-semibold text-gray-800">{{ assignment.title }}</h3>
+        <p class="text-sm text-gray-600">Due: {{ assignment.due_date }}</p>
+        <p class="mt-2">{{ assignment.description }}</p>
+
+        {% if assignment.uploaded_file %}
+            <p class="mt-2">
+                <a href="{{ assignment.uploaded_file.url }}" class="text-blue-600 underline" target="_blank">
+                    Download File
+                </a>
+            </p>
+            <div class="mt-2">
+                <iframe src="{{ assignment.uploaded_file.url }}" class="w-full h-64 border rounded" frameborder="0"></iframe>
+            </div>
+        {% elif assignment.file_link %}
+            <p class="mt-2">
+                <a href="{{ assignment.file_link }}" class="text-blue-600 underline" target="_blank">
+                    Open External File Link
+                </a>
+            </p>
+            <div class="mt-2">
+                <iframe src="{{ assignment.file_link }}" class="w-full h-64 border rounded" frameborder="0"></iframe>
+            </div>
+        {% endif %}
+
+        {% if request.user.is_staff and assignment.course.teacher == request.user %}
+            <div class="mt-4">
+                <a href="{% url 'assignment_edit' assignment.id %}" class="text-green-600 hover:underline mr-4">Edit</a>
+                <a href="{% url 'assignment_delete' assignment.id %}" class="text-red-600 hover:underline">Delete</a>
+            </div>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>No assignments found.</p>
+{% endfor %}
+{% endblock %}

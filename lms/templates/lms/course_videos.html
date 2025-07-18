@@ -1,0 +1,43 @@
+{% extends 'lms/base.html' %}
+{% block title %}{{ course.title }} - Videos{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-8">
+  <h1 class="text-2xl font-bold mb-6">{{ course.title }} - Video Playlist</h1>
+
+  {% if request.user.is_staff %}
+  <div class="mb-6">
+    <a href="{% url 'upload_video' course.id %}" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      + Upload Video
+    </a>
+  </div>
+  {% endif %}
+
+  <div class="space-y-6">
+    {% for video in videos %}
+    <div class="bg-white p-4 rounded shadow">
+      <h2 class="text-lg font-semibold mb-2">{{ video.title }}</h2>
+      <video controls class="w-full rounded">
+        <source src="{{ video.video_file.url }}" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+
+      {% if video.study_material %}
+      <a href="{{ video.study_material.url }}" class="text-blue-500 block mt-3 underline" download>
+        📄 Download Study Material
+      </a>
+      {% endif %}
+
+      {% if request.user.is_staff %}
+      <div class="mt-3 flex space-x-4 text-sm">
+        <a href="{% url 'edit_video' video.id %}" class="text-green-600 hover:underline">Edit</a>
+        <a href="{% url 'delete_video' video.id %}" class="text-red-600 hover:underline">Delete</a>
+      </div>
+      {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-gray-500">No videos uploaded yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

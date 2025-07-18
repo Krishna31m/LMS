@@ -1,0 +1,11 @@
+{% extends 'lms/base.html' %}
+{% block title %}View Assignment{% endblock %}
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">{{ assignment.title }}</h2>
+
+  {% if assignment.file.url.endswith:".pdf" %}
+    <iframe src="{{ assignment.file.url }}" width="100%" height="600px" frameborder="0"></iframe>
+  {% else %}
+    <p>This file cannot be viewed inline. <a href="{{ assignment.file.url }}" target="_blank" class="text-blue-500 underline">Download it here</a>.</p>
+  {% endif %}
+{% endblock %}

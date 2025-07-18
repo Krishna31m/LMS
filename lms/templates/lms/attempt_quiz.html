@@ -1,15 +1,34 @@
 {% extends 'lms/base.html' %}
+{% block title %}Attempt Quiz - {{ quiz.title }}{% endblock %}
+
 {% block content %}
-<h2>{{ quiz.title }}</h2>
-<form method="post">
+<h2 class="text-2xl font-bold mb-6">{{ quiz.title }}</h2>
+
+<form method="post" class="space-y-6 bg-white p-6 rounded shadow">
     {% csrf_token %}
     {% for question in questions %}
-        <p><strong>{{ question.question_text }}</strong></p>
-        {% for option in question.option_set.all %}
-            <label><input type="radio" name="{{ question.id }}" value="{{ option.id }}"> {{ option.option_text }}</label><br>
-        {% endfor %}
-        <hr>
+        <div class="mb-4">
+            <p class="font-semibold">{{ forloop.counter }}. {{ question.question_text }}</p>
+            <div class="ml-4 space-y-2">
+                {% for option in question.option_set.all %}
+                    <label class="block">
+                        <input 
+                            type="radio" 
+                            name="{{ question.id }}" 
+                            value="{{ option.id }}"
+                            class="mr-2"
+                            required
+                        >
+                        {{ option.option_text }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <hr class="my-4">
     {% endfor %}
-    <button type="submit">Submit</button>
+
+    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        Submit Quiz
+    </button>
 </form>
 {% endblock %}

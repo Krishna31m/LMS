@@ -1,0 +1,16 @@
+{% extends 'lms/base.html' %}
+
+{% block content %}
+  <div class="container mx-auto p-4">
+    <h2 class="text-2xl font-bold mb-4">Edit Questions for Quiz: {{ quiz.title }}</h2>
+
+    {% for question in quiz.questions.all %}
+      <div class="border p-4 mb-2">
+        <p><strong>Question:</strong> {{ question.text }}</p>
+        <a href="{% url 'edit_question' question.id %}" class="text-blue-500 underline">Edit</a>
+      </div>
+    {% empty %}
+      <p>No questions found for this quiz.</p>
+    {% endfor %}
+  </div>
+{% endblock %}

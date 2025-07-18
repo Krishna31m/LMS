@@ -1,0 +1,28 @@
+{% extends 'lms/base.html' %}
+{% block title %}View Assignment{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded shadow">
+    <h2 class="text-2xl font-bold mb-4">{{ assignment.title }}</h2>
+    <p class="mb-4">{{ assignment.description }}</p>
+
+    {% if assignment.file %}
+        <h3 class="text-lg font-semibold mt-4">Uploaded File:</h3>
+        <div class="flex space-x-4 mb-2">
+            <a href="{{ assignment.file.url }}" download class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Download</a>
+            <a href="#preview-section" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">View</a>
+        </div>
+        <div id="preview-section" class="mt-6">
+            <iframe src="{{ assignment.file.url }}" width="100%" height="600px" frameborder="0"></iframe>
+        </div>
+    {% endif %}
+
+    {% if assignment.file_link %}
+        <h3 class="text-lg font-semibold mt-6">File via Link:</h3>
+        <a href="{{ assignment.file_link }}" target="_blank" class="text-blue-600 underline">{{ assignment.file_link }}</a>
+        <div class="mt-4">
+            <iframe src="{{ assignment.file_link }}" width="100%" height="600px" frameborder="0"></iframe>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

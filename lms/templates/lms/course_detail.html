@@ -1,35 +1,45 @@
 {% extends 'lms/base.html' %}
 {% block title %}{{ course.title }} - Videos{% endblock %}
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">{{ course.title }} - Video Playlist</h1>
 
-{# Show Upload button only to teachers (staff) #}
+<h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">{{ course.title }} - Video Playlist</h1>
+
 {% if request.user.is_staff %}
-<a href="{% url 'upload_video' course.id %}" class="bg-blue-500 text-white px-4 py-2 rounded">+ Upload Video</a>
+<div class="flex justify-center mb-6">
+    <a href="{% url 'upload_video' course.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-300">
+        + Upload Video
+    </a>
+</div>
 {% endif %}
 
-<div class="mt-6 space-y-4">
+<div class="space-y-6">
     {% for video in videos %}
-    <div class="bg-white p-4 shadow rounded">
-        <h2 class="text-lg font-semibold">{{ video.title }}</h2>
-        <video controls class="w-full mt-2">
-            <source src="{{ video.video_file.url }}" type="video/mp4">
-        </video>
+    <div class="bg-white border border-gray-200 shadow-sm rounded-lg p-6 hover:shadow-md transition">
+        <h2 class="text-xl font-semibold text-gray-800">{{ video.title }}</h2>
+
+        <div class="mt-4">
+            <video controls class="w-full rounded-md border border-gray-300">
+                <source src="{{ video.video_file.url }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
 
         {% if video.study_material %}
-        <a href="{{ video.study_material.url }}" class="text-blue-500 block mt-2" download>Download Material</a>
+        <a href="{{ video.study_material.url }}" class="text-blue-600 mt-3 inline-block hover:underline" download>
+            📄 Download Material
+        </a>
         {% endif %}
 
-        {# Show Edit/Delete only to teachers (staff) #}
         {% if request.user.is_staff %}
-        <div class="mt-2 flex space-x-3">
-            <a href="{% url 'edit_video' video.id %}" class="text-green-600">Edit</a>
-            <a href="{% url 'delete_video' video.id %}" class="text-red-600">Delete</a>
+        <div class="mt-4 flex space-x-6">
+            <a href="{% url 'edit_video' video.id %}" class="text-green-600 font-medium hover:underline">✏️ Edit</a>
+            <a href="{% url 'delete_video' video.id %}" class="text-red-600 font-medium hover:underline">🗑️ Delete</a>
         </div>
         {% endif %}
     </div>
     {% empty %}
-    <p>No videos uploaded yet.</p>
+    <p class="text-gray-500 text-center">No videos uploaded yet.</p>
     {% endfor %}
 </div>
+
 {% endblock %}

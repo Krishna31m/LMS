@@ -2,16 +2,24 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views import View
-from .forms import RoleUserCreationForm, QuizForm, VideoLessonForm #CourseVideoForm, 
+from django.views.generic import View, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from .models import Course, Quiz, Enrollment, VideoLesson, Option, QuizAttempt
-from .forms import QuizForm, QuestionForm, OptionForm
-from django import forms
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import models
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+# from .forms import ProfileImageForm
+from django import forms 
+from django.views.generic import CreateView, DeleteView, DetailView
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from .models import Enrollment
+from .forms import (
+    RoleUserCreationForm, QuizForm, QuestionForm, OptionForm,
+    VideoLessonForm, AssignmentForm
+)
+from .models import Course, Quiz, Enrollment, VideoLesson, Option, QuizAttempt, Assignment
+
 from collections import Counter
 
 
@@ -77,6 +85,27 @@ class StudentDashboardView(LoginRequiredMixin, View):
         return render(request, 'lms/student_dashboard.html', {
             'enrollments': enrollments
         })
+# Profile student 
+# def student_dashboard(request):
+#     if not request.user.is_authenticated:
+#         return redirect('login')
+
+#     profile = request.user.profile
+#     enrollments = Enrollment.objects.filter(user=request.user)
+
+#     if request.method == 'POST':
+#         form = ProfileImageForm(request.POST, request.FILES, instance=profile)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('student_dashboard')
+#     else:
+#         form = ProfileImageForm(instance=profile)
+
+#     return render(request, 'lms/student_dashboard.html', {
+#         'enrollments': enrollments,
+#         'form': form,
+#     })
+
 
 
 
@@ -255,15 +284,6 @@ class AttemptQuizView(LoginRequiredMixin, View):
         QuizAttempt.objects.create(student=request.user, quiz=quiz, score=score)
         return render(request, 'lms/quiz_result.html', {'score': score, 'total': questions.count()})
 
-# class QuizListView(LoginRequiredMixin, View):
-#     def get(self, request):
-#         if request.user.is_staff:
-#             return redirect('teacher_dashboard')
-
-#         # Show quizzes for enrolled courses
-#         enrolled_courses = Enrollment.objects.filter(student=request.user).values_list('course', flat=True)
-#         quizzes = Quiz.objects.filter(course__in=enrolled_courses)
-#         return render(request, 'lms/quiz_list.html', {'quizzes': quizzes})
 
 class QuizListView(LoginRequiredMixin, View):
     def get(self, request):
@@ -276,6 +296,50 @@ class QuizListView(LoginRequiredMixin, View):
             quizzes = Quiz.objects.filter(course__in=enrolled_courses)
         return render(request, 'lms/quiz_list.html', {'quizzes': quizzes})
 
+class EditQuizTitleView(LoginRequiredMixin, View):
+    def get(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        form = QuizForm(instance=quiz)
+        return render(request, 'lms/edit_quiz_title.html', {'form': form, 'quiz': quiz})
+
+    def post(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        form = QuizForm(request.POST, instance=quiz)
+        if form.is_valid():
+            form.save()
+            return redirect('edit_quiz_questions', quiz_id=quiz.id)
+        return render(request, 'lms/edit_quiz_title.html', {'form': form, 'quiz': quiz})
+
+class EditQuizQuestionsView(LoginRequiredMixin, View):
+    def get(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        questions = quiz.question_set.all()
+        return render(request, 'lms/quiz_question_edit.html', {'quiz': quiz, 'questions': questions})
+
+    def post(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        questions = quiz.question_set.all()
+
+        for question in questions:
+            question_text = request.POST.get(f'question_{question.id}')
+            if question_text:
+                question.question_text = question_text
+                question.save()
+
+            for option in question.option_set.all():
+                option_text = request.POST.get(f'option_{option.id}')
+                is_correct = f'correct_{question.id}' in request.POST and request.POST[f'correct_{question.id}'] == str(option.id)
+                option.option_text = option_text
+                option.is_correct = is_correct
+                option.save()
+
+        return redirect('quiz_list')
+
+class DeleteQuizView(LoginRequiredMixin, View):
+    def get(self, request, quiz_id):
+        quiz = get_object_or_404(Quiz, id=quiz_id)
+        quiz.delete()
+        return redirect('quiz_list')
 
 
 
@@ -359,3 +423,87 @@ class CourseListView(LoginRequiredMixin, View):
         enrolled = Enrollment.objects.filter(student=request.user).values_list('course_id', flat=True)
         courses = Course.objects.exclude(id__in=enrolled)
         return render(request, 'lms/student_courses.html', {'courses': courses})
+    
+
+
+# Assignment
+
+class AssignmentListView(LoginRequiredMixin, View):
+    def get(self, request):
+        if request.user.is_staff:
+            courses = Course.objects.filter(teacher=request.user)
+            assignments = Assignment.objects.filter(course__in=courses)
+        else:
+            enrolled_courses = Enrollment.objects.filter(student=request.user).values_list('course', flat=True)
+            assignments = Assignment.objects.filter(course__in=enrolled_courses)
+
+        return render(request, 'lms/assignment_list.html', {'assignments': assignments})
+
+class AssignmentCreateView(LoginRequiredMixin, View):
+    def get(self, request):
+        if not request.user.is_staff:
+            return redirect('student_dashboard')
+        form = AssignmentForm()
+        form.fields['course'].queryset = Course.objects.filter(teacher=request.user)
+        return render(request, 'lms/assignment_create.html', {'form': form})
+
+    def post(self, request):
+        if not request.user.is_staff:
+            return redirect('student_dashboard')
+        form = AssignmentForm(request.POST, request.FILES)  # ✅ handle uploaded files
+        if form.is_valid():
+            form.save()
+            return redirect('assignment_list')
+        return render(request, 'lms/assignment_create.html', {'form': form})
+
+class AssignmentEditView(LoginRequiredMixin, View):
+    def get(self, request, assignment_id):
+        assignment = get_object_or_404(Assignment, id=assignment_id)
+        if not request.user.is_staff or assignment.course.teacher != request.user:
+            return redirect('assignment_list')
+        form = AssignmentForm(instance=assignment)
+        form.fields['course'].queryset = Course.objects.filter(teacher=request.user)
+        return render(request, 'lms/assignment_edit.html', {'form': form, 'assignment': assignment})
+
+    def post(self, request, assignment_id):
+        assignment = get_object_or_404(Assignment, id=assignment_id)
+        if not request.user.is_staff or assignment.course.teacher != request.user:
+            return redirect('assignment_list')
+        form = AssignmentForm(request.POST, request.FILES, instance=assignment)  # ✅ handle uploaded files
+        if form.is_valid():
+            form.save()
+            return redirect('assignment_list')
+        return render(request, 'lms/assignment_edit.html', {'form': form, 'assignment': assignment})
+
+
+class AssignmentDeleteView(DeleteView):
+    model = Assignment
+    template_name = 'lms/assignment_confirm_delete.html'
+    success_url = reverse_lazy('assignment_list')
+
+    def get_queryset(self):
+        return Assignment.objects.filter(course__teacher=self.request.user)
+    
+class AssignmentViewView(DetailView):
+    model = Assignment
+    template_name = 'assignments/view_assignment.html'
+    context_object_name = 'assignment'
+
+
+# @login_required
+# def update_profile(request):
+#     if request.method == 'POST':
+#         profile = request.user.profile
+#         if 'profile_image' in request.FILES:
+#             profile.image = request.FILES['profile_image']
+#             profile.save()
+#         return redirect('student_dashboard')  # redirect after saving
+    
+# @receiver(post_save, sender=User)
+# def create_user_profile(sender, instance, created, **kwargs):
+#     if created:
+#         Profile.objects.create(user=instance)
+
+# @receiver(post_save, sender=User)
+# def save_user_profile(sender, instance, **kwargs):
+#     instance.profile.save()

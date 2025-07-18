@@ -1,7 +1,8 @@
 from django.urls import path
 from . import views
-from .views import RegisterView, LoginView, LogoutView, StudentDashboardView, TeacherDashboardView, AddQuestionView, AttemptQuizView, CourseListView
-from .views import CreateCourseView, UpdateCourseView, DeleteCourseView, EnrollCourseView, UploadQuizView, QuizListView, CourseDetailView #UploadCourseVideoView
+# from .views import update_profile
+from .views import RegisterView, LoginView, LogoutView, StudentDashboardView, TeacherDashboardView, AddQuestionView, AttemptQuizView, CourseListView, EditQuizTitleView, EditQuizQuestionsView, DeleteQuizView
+from .views import CreateCourseView, UpdateCourseView, DeleteCourseView, EnrollCourseView, UploadQuizView, QuizListView, CourseDetailView, AssignmentCreateView,AssignmentEditView, AssignmentListView, AssignmentDeleteView, AssignmentViewView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -11,6 +12,7 @@ urlpatterns = [
     # Dashboards
     path('student/dashboard/', StudentDashboardView.as_view(), name='student_dashboard'),
     path('teacher/dashboard/', TeacherDashboardView.as_view(), name='teacher_dashboard'),
+    # path('student/dashboard/', student_dashboard, name='student_dashboard'),
 
 
     path('teacher/create-course/', CreateCourseView.as_view(), name='create_course'),
@@ -44,5 +46,17 @@ urlpatterns = [
     path('enroll/<int:course_id>/', EnrollCourseView.as_view(), name='enroll_course'),
     path('courses/<int:course_id>/', CourseDetailView.as_view(), name='course_detail'),
 
-    
+    # 
+    path('quiz/<int:quiz_id>/edit/', EditQuizTitleView.as_view(), name='edit_quiz_title'),
+    path('quiz/<int:quiz_id>/edit-questions/', EditQuizQuestionsView.as_view(), name='edit_quiz_questions'),
+    path('quiz/<int:quiz_id>/delete/', DeleteQuizView.as_view(), name='delete_quiz'),
+
+    # Assignment
+    path('assignments/', AssignmentListView.as_view(), name='assignment_list'),
+    path('assignments/create/', AssignmentCreateView.as_view(), name='assignment_create'),
+    path('assignments/<int:assignment_id>/edit/', AssignmentEditView.as_view(), name='assignment_edit'),
+    path('assignments/<int:pk>/delete/', AssignmentDeleteView.as_view(), name='assignment_delete'),
+    path('assignments/<int:pk>/view/', AssignmentViewView.as_view(), name='assignment_view'),
+
+    # path('update-profile/', update_profile, name='update_profile'),
 ]

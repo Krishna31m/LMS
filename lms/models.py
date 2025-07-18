@@ -97,3 +97,38 @@ class VideoLesson(models.Model):
 
     def __str__(self):
         return f"{self.course.title} - {self.title}"
+    
+
+# Assignment
+
+# models.py
+class Assignment(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    due_date = models.DateField()
+    file_link = models.URLField(blank=True, null=True)
+    uploaded_file = models.FileField(upload_to='assignments/', blank=True, null=True)  # ✅ File field
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+
+# Profile
+
+# # models.py
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     image = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+#     dob = models.DateField(blank=True, null=True)
+#     mobile = models.CharField(max_length=15, blank=True)
+#     address = models.TextField(blank=True)
+#     father_name = models.CharField(max_length=100, blank=True)
+#     school = models.CharField(max_length=100, blank=True)
+#     school_grade = models.CharField(max_length=20, blank=True)
+#     college = models.CharField(max_length=100, blank=True)
+#     college_grade = models.CharField(max_length=20, blank=True)
+
+#     def __str__(self):
+#         return f"{self.user.username}'s Profile"
